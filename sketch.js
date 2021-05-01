@@ -1,5 +1,11 @@
 const WIDTH = 800;
-const HEIGHT = 500;
+const HEIGHT = 400;
+const FPS = 10;
+const BOX = 32; // unit for snake measure
+
+const PAUSED = 0;
+const GAME_OVER = -1;
+const PLAYING = 1;
 
 let MODEL_URL =
   "https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe";
@@ -7,7 +13,33 @@ let MODEL_URL =
 let pitch;
 let mic;
 let freq = 0;
-let currentNote; // current note detected
+let currentNote = null; // current note detected
+
+let gamePause = true;
+let score = 0;
+
+let xpos, ypos; // starting point of the snake head
+let snake = []; // this is our snake , , , yep !!
+
+// initial snake
+snake[0] = {
+  x: 5 * BOX,
+  y: 10 * BOX,
+};
+
+snake[1] = {
+  x: 4 * BOX,
+  y: 10 * BOX,
+};
+
+snake[2] = {
+  x: 3 * BOX,
+  y: 10 * BOX,
+};
+
+let dir = "RIGHT"; // right
+
+document.addEventListener("keydown", handleDirection);
 
 //  Notes and frequency in Hz
 let notes = [
@@ -30,13 +62,17 @@ let notes = [
 ];
 
 function setup() {
+  console.log("Setting up canvas. . Please wait ");
   const cnv = createCanvas(WIDTH, HEIGHT);
+  frameRate(FPS);
   audioContext = getAudioContext();
   mic = new p5.AudioIn();
   mic.start(listening);
 
   cnv.id("mycanvas");
   cnv.parent("canvasContainer");
+
+  setConsole("Press start to begin");
 }
 
 function draw() {
@@ -46,7 +82,7 @@ function draw() {
   textSize(32);
 
   // Display current frequency
-  text(freq.toFixed(2), width / 2, height - 150);
+  //   text(freq.toFixed(2), width / 2, height - 150);
 
   let closestNote = -1; // detected note
   let recordDiff = Infinity; // difference between the freq detected and the closest note freq
@@ -56,13 +92,99 @@ function draw() {
     if (abs(currentDiff) < abs(recordDiff)) {
       closestNote = note;
       recordDiff = currentDiff;
-      currentNote = closestNote.note;
+
+      //   currentNote = abs(recordDiff) <= 50 ? closestNote.note : null;
+      if (abs(recordDiff) <= 50) currentNote = closestNote.note;
+      //   currentNote = closestNote.note;
     }
   });
-  //   console.log("Current note: ", currentNote);
 
-  textSize(64);
-  text(closestNote.note, width / 2, height - 50);
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////Game Logic/////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  textSize(32);
+  if (gamePause === true) text("PAUSE", WIDTH / 2, HEIGHT / 2);
+
+  snake.forEach((s, index) => {
+    if (index === 0) fill("red");
+    else fill("white");
+    rect(s.x, s.y, BOX, BOX);
+  });
+
+  //   console.log("Current note: ", currentNote);
+  // Game logic
+  if (gamePause === false) {
+    setConsole("Note: " + currentNote);
+    setFreq(freq.toFixed(2));
+    // draw snake
+    // Old snake head position
+    let snakeX = snake[0].x;
+    let snakeY = snake[0].y;
+
+    // Update Position
+    if (dir == "RIGHT") snakeX += BOX;
+    if (dir == "LEFT") snakeX -= BOX;
+    if (dir == "UP") snakeY -= BOX;
+    if (dir == "DOWN") snakeY += BOX;
+
+    snake.pop();
+
+    let newHead = {
+      x: snakeX,
+      y: snakeY,
+    };
+
+    console.log("snnakeX: ", snakeX);
+    console.log("width: ", width - BOX);
+    // Game over
+    if (
+      snakeX > width - BOX ||
+      snakeY >= height
+      //   collison(newHead, snake) ||
+    ) {
+      gameOver();
+    }
+
+    snake.unshift(newHead);
+
+    // erase();
+    //   text(abs(recordDiff), width / 2, height - 100);
+  }
+}
+
+// Function Changes the direction of the snake movement
+function handleDirection(event) {
+  if (event.keyCode == 37 && dir != "RIGHT") {
+    dir = "LEFT";
+  } else if (event.keyCode == 38 && dir != "DOWN") {
+    dir = "UP";
+  } else if (event.keyCode == 39 && dir != "LEFT") {
+    dir = "RIGHT";
+  } else if (event.keyCode == 40 && dir != "UP") {
+    dir = "DOWN";
+  }
+}
+
+function gameOver() {
+  switchGameState();
+  noLoop();
+  setConsole(`GAME OVER !! FINAL SCORE: ${score}`);
+}
+
+function switchGameState() {
+  console.log("switched");
+  clear();
+  gamePause = !gamePause;
+}
+
+function setConsole(message) {
+  const textArea = document.getElementById("note-value");
+  textArea.innerHTML = message;
+}
+
+function setFreq(freq) {
+  const textArea = document.getElementById("freq-value");
+  textArea.innerHTML = freq;
 }
 
 function listening() {

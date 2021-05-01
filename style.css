@@ -8,7 +8,34 @@ canvas {
 }
 
 #canvasContainer {
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
   display: flex;
-  flex-direction: row;
+  margin: 2rem;
+}
+
+#note {
+  flex: auto;
+  text-align: center;
+  background-color: rgb(205, 242, 243);
+
+  border: 5px solid rgb(21, 21, 107);
+  margin: auto;
+  width: 800px;
+}
+
+#freq {
+  display: flex;
+  flex: auto;
+  text-align: left;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: sans-serif;
+  margin: auto;
+  width: 800px;
+}
+
+#mycanvas {
+  border: 5px solid rgb(21, 21, 107);
 }
