@@ -20,7 +20,7 @@ canvas {
   text-align: center;
   background-color: rgb(205, 242, 243);
 
-  border: 5px solid rgb(21, 21, 107);
+  border: 5px solid rgb(19, 163, 91);
   margin: auto;
   width: 800px;
 }
@@ -37,5 +37,5 @@ canvas {
 }
 
 #mycanvas {
-  border: 5px solid rgb(21, 21, 107);
+  border: 5px solid rgb(19, 163, 91);
 }

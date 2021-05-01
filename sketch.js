@@ -15,7 +15,7 @@ let mic;
 let freq = 0;
 let currentNote = null; // current note detected
 
-let gamePause = true;
+let gameState = PAUSED;
 let score = 0;
 
 let xpos, ypos; // starting point of the snake head
@@ -103,7 +103,8 @@ function draw() {
   ////////////////////////////////////Game Logic/////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////
   textSize(32);
-  if (gamePause === true) text("PAUSE", WIDTH / 2, HEIGHT / 2);
+  if (gameState === PAUSED) text("PAUSE", WIDTH / 2, HEIGHT / 2);
+  if (gameState === GAME_OVER) gameOver();
 
   snake.forEach((s, index) => {
     if (index === 0) fill("red");
@@ -113,7 +114,7 @@ function draw() {
 
   //   console.log("Current note: ", currentNote);
   // Game logic
-  if (gamePause === false) {
+  if (gameState === PLAYING) {
     setConsole("Note: " + currentNote);
     setFreq(freq.toFixed(2));
     // draw snake
@@ -138,8 +139,10 @@ function draw() {
     console.log("width: ", width - BOX);
     // Game over
     if (
-      snakeX > width - BOX ||
-      snakeY >= height
+      snakeX <= 0 ||
+      snakeX >= width - BOX ||
+      snakeY >= height - BOX ||
+      snakeY <= 0
       //   collison(newHead, snake) ||
     ) {
       gameOver();
@@ -166,15 +169,36 @@ function handleDirection(event) {
 }
 
 function gameOver() {
-  switchGameState();
-  noLoop();
+  dir = "RIGHT";
   setConsole(`GAME OVER !! FINAL SCORE: ${score}`);
+  gameState = GAME_OVER;
 }
 
 function switchGameState() {
   console.log("switched");
   clear();
-  gamePause = !gamePause;
+  if (gameState === PAUSED) {
+    gameState = PLAYING;
+  } else if (gameState === GAME_OVER) {
+    // initial snake
+    snake[0] = {
+      x: 5 * BOX,
+      y: 10 * BOX,
+    };
+
+    snake[1] = {
+      x: 4 * BOX,
+      y: 10 * BOX,
+    };
+
+    snake[2] = {
+      x: 3 * BOX,
+      y: 10 * BOX,
+    };
+
+    let dir = "RIGHT"; // right
+    gameState = PLAYING;
+  }
 }
 
 function setConsole(message) {
