@@ -1,6 +1,6 @@
 const WIDTH = 800;
-const HEIGHT = 400;
-const FPS = 10;
+const HEIGHT = 416;
+const FPS = 8;
 const BOX = 32; // unit for snake measure
 
 const PAUSED = 0;
@@ -35,6 +35,11 @@ snake[1] = {
 snake[2] = {
   x: 3 * BOX,
   y: 10 * BOX,
+};
+
+let food = {
+  x: Math.floor(Math.random() * 17 + 1) * BOX,
+  y: Math.floor(Math.random() * 15 + 3) * BOX,
 };
 
 let dir = "RIGHT"; // right
@@ -99,9 +104,12 @@ function draw() {
     }
   });
 
+  setFreq(freq.toFixed(2));
   ///////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////Game Logic/////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////
+  textSize(22);
+  text(score, 20, 20);
   textSize(32);
   if (gameState === PAUSED) text("PAUSE", WIDTH / 2, HEIGHT / 2);
   if (gameState === GAME_OVER) gameOver();
@@ -112,11 +120,19 @@ function draw() {
     rect(s.x, s.y, BOX, BOX);
   });
 
-  //   console.log("Current note: ", currentNote);
-  // Game logic
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////Game Start/////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////
   if (gameState === PLAYING) {
+    handleDirectionWithNote();
     setConsole("Note: " + currentNote);
-    setFreq(freq.toFixed(2));
+
+    fill("green");
+
+    // draw food
+    rect(food.x, food.y, 16, 16);
+
+    // ellipse(food.x, food.y, 16, 16);
     // draw snake
     // Old snake head position
     let snakeX = snake[0].x;
@@ -128,28 +144,42 @@ function draw() {
     if (dir == "UP") snakeY -= BOX;
     if (dir == "DOWN") snakeY += BOX;
 
-    snake.pop();
+    // snake.pop();
 
     let newHead = {
       x: snakeX,
       y: snakeY,
     };
 
-    console.log("snnakeX: ", snakeX);
-    console.log("width: ", width - BOX);
     // Game over
     if (
       snakeX <= 0 ||
       snakeX >= width - BOX ||
-      snakeY >= height - BOX ||
-      snakeY <= 0
+      snakeY + BOX >= height ||
+      snakeY <= 0 ||
+      collison(newHead, snake)
       //   collison(newHead, snake) ||
     ) {
       gameOver();
     }
 
     snake.unshift(newHead);
-
+    // If snake eats the food
+    if (
+      food.x >= snake[0].x &&
+      food.x <= snake[0].x + BOX &&
+      food.y >= snake[0].y &&
+      food.y <= snake[0].y + BOX
+    ) {
+      console.log("whahaatt");
+      score++;
+      food = {
+        x: floor(random(10, (width - 100) / 10)) * 10,
+        y: floor(random(10, (height - 100) / 10)) * 10,
+      };
+    } else {
+      snake.pop();
+    }
     // erase();
     //   text(abs(recordDiff), width / 2, height - 100);
   }
@@ -157,30 +187,52 @@ function draw() {
 
 // Function Changes the direction of the snake movement
 function handleDirection(event) {
-  if (event.keyCode == 37 && dir != "RIGHT") {
+  console.log("handling direciton");
+  if ((event.keyCode == 37 || currentNote === "B") && dir != "RIGHT") {
+    console.log("Gooooo righttt");
     dir = "LEFT";
-  } else if (event.keyCode == 38 && dir != "DOWN") {
+  } else if ((event.keyCode == 38 || currentNote === "C") && dir != "DOWN") {
+    console.log("Gooooo Down");
     dir = "UP";
-  } else if (event.keyCode == 39 && dir != "LEFT") {
+  } else if ((event.keyCode == 39 || currentNote === "A") && dir != "LEFT") {
+    console.log("Gooooo down");
     dir = "RIGHT";
-  } else if (event.keyCode == 40 && dir != "UP") {
+  } else if ((event.keyCode == 40 || currentNote === "G") && dir != "UP") {
+    console.log("Gooooo up");
     dir = "DOWN";
+  }
+}
+
+function handleDirectionWithNote() {
+  console.log("handling direction");
+  if (currentNote === "B" && dir !== "RIGHT") {
+    dir = "RIGHT";
+  } else if (currentNote === "C" && dir !== "DOWN") {
+    dir = "DOWN";
+  } else if (currentNote === "G" && dir !== "UP") {
+    dir = "UP";
+  } else if (currentNote === "A" && dir !== "LEFT") {
+    dir = "LEFT";
   }
 }
 
 function gameOver() {
   dir = "RIGHT";
+  currentNote = null;
   setConsole(`GAME OVER !! FINAL SCORE: ${score}`);
+
   gameState = GAME_OVER;
 }
 
 function switchGameState() {
   console.log("switched");
   clear();
+  score = 0;
   if (gameState === PAUSED) {
     gameState = PLAYING;
   } else if (gameState === GAME_OVER) {
     // initial snake
+    snake = [];
     snake[0] = {
       x: 5 * BOX,
       y: 10 * BOX,
@@ -199,6 +251,15 @@ function switchGameState() {
     let dir = "RIGHT"; // right
     gameState = PLAYING;
   }
+}
+
+// Check collison with tail
+function collison(head, array) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].x == head.x && array[i].y == head.y && array.length > 1)
+      return true;
+  }
+  return false;
 }
 
 function setConsole(message) {
