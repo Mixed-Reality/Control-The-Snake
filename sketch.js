@@ -1,5 +1,5 @@
-const WIDTH = 800;
-const HEIGHT = 416;
+const WIDTH = 1000;
+const HEIGHT = 450;
 const FPS = 8;
 const BOX = 32; // unit for snake measure
 
@@ -204,16 +204,10 @@ function handleDirection(event) {
 }
 
 function handleDirectionWithNote() {
-  console.log("handling direction");
-  if (currentNote === "B" && dir !== "RIGHT") {
-    dir = "RIGHT";
-  } else if (currentNote === "C" && dir !== "DOWN") {
-    dir = "DOWN";
-  } else if (currentNote === "G" && dir !== "UP") {
-    dir = "UP";
-  } else if (currentNote === "A" && dir !== "LEFT") {
-    dir = "LEFT";
-  }
+  if (currentNoteo === "B" && dir !== "RIGHT") dir = "RIGHT";
+  else if (currentNoteo === "C" && dir !== "DOWN") dir = "DOWN";
+  else if (currentNoteo === "G" && dir !== "UP") dir = "UP";
+  else if (currentNoteo === "A" && dir !== "LEFT") dir = "LEFT";
 }
 
 function gameOver() {

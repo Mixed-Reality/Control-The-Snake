@@ -22,7 +22,7 @@ canvas {
 
   border: 5px solid rgb(19, 163, 91);
   margin: auto;
-  width: 800px;
+  width: 1000px;
 }
 
 #freq {
@@ -33,7 +33,7 @@ canvas {
   font-weight: bold;
   font-family: sans-serif;
   margin: auto;
-  width: 800px;
+  width: 1000px;
 }
 
 #mycanvas {
